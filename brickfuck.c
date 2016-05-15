@@ -75,4 +75,37 @@ void interpret_brainfuck(char *source){
 
 	long long bf_tape[30000] = {0};
 	long long *bf_ptr = bf_tape;
+	char *i = source;
+
+	while(*i != '\0'){
+		switch(*i){
+		case '>':
+			bf_ptr++;
+			break;
+		case '<':
+			bf_ptr--;
+			break;
+		case '+':
+			(*bf_ptr)++;
+			break;
+		case '-':
+			(*bf_ptr)--;
+			break;
+		case '.':
+			putchar(*bf_ptr);
+			break;
+		case ',':
+			*bf_ptr = getchar();
+			if(*bf_ptr == EOF){
+				*bf_ptr = 0;
+			}
+			break;
+		default:
+			puts("You should not see this. If you see this, the geese got loose "
+			     "(meaning, memory pointer is somewhere it's not supposed to be). "
+			     "Consider reporting a bug.");
+			break;
+		}
+		i++;
+	}
 }
