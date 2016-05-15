@@ -76,6 +76,8 @@ void interpret_brainfuck(char *source){
 	long long bf_tape[30000] = {0};
 	long long *bf_ptr = bf_tape;
 	char *i = source;
+	char *stack[1024] = {0};
+	char **stack_ptr = stack;
 
 	while(*i != '\0'){
 		switch(*i){
@@ -98,6 +100,27 @@ void interpret_brainfuck(char *source){
 			*bf_ptr = getchar();
 			if(*bf_ptr == EOF){
 				*bf_ptr = 0;
+			}
+			break;
+		case '[':
+			if(!*bf_ptr){
+				int ctr = 0;
+				while((*(++i) != ']') || (ctr != 0))
+					if(*i == '['){
+						ctr++;
+					} else if (*i == ']'){
+						ctr--;
+					}
+			} else {
+				*stack_ptr++ = i;
+			}
+			break;
+		case ']':
+			if(!*bf_ptr){
+				stack_ptr--;
+			} else {
+				i = *--stack_ptr;
+				continue;
 			}
 			break;
 		default:
