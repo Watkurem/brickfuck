@@ -42,7 +42,7 @@ char * strip_source(FILE *source, long length){
 	char *buf_iter = buf;
 	char c;
 
-	if(length == 0){
+	if(length <= 0){
 		return NULL;
 	}
 
@@ -99,7 +99,7 @@ void interpret_brainfuck(char *source){
 		case ',':
 			*bf_ptr = getchar();
 			if(*bf_ptr == EOF){
-				*bf_ptr = 0;
+				*bf_ptr = -1;
 			}
 			break;
 		case '[':
@@ -119,15 +119,14 @@ void interpret_brainfuck(char *source){
 			if(!*bf_ptr){
 				stack_ptr--;
 			} else {
-				i = *--stack_ptr;
-				continue;
+				i = stack_ptr[-1];
 			}
 			break;
 		default:
 			puts("You should not see this. If you see this, the geese got loose "
 			     "(meaning, memory pointer is somewhere it's not supposed to be). "
 			     "Consider reporting a bug.");
-			break;
+			return;
 		}
 		i++;
 	}

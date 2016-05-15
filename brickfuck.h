@@ -1,7 +1,7 @@
-#ifndef BRICKFUCK_H
-#define BRICKFUCK_H
+#ifndef _BRICKFUCK_H
+#define _BRICKFUCK_H
 
 void interpret_brainfuck(char *);
 char * strip_source(FILE *, long);
 
-#endif // BRICKFUCK_H
+#endif // _BRICKFUCK_H
