@@ -73,8 +73,8 @@ void interpret_brainfuck(char *source){
 		return;
 	}
 
-	long long bf_tape[30000] = {0};
-	long long *bf_ptr = bf_tape;
+	short bf_tape[30000] = {0};
+	short *bf_ptr = bf_tape;
 	char *i = source;
 	char *stack[1024] = {0};
 	char **stack_ptr = stack;
