@@ -30,6 +30,7 @@ int main(int argc, char *argv[]){
 			fclose(source);
 
 			interpret_brainfuck(bf_code);
+			free(bf_code);
 		}
 	}
 
