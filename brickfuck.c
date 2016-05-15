@@ -5,7 +5,7 @@ int main(int argc, char *argv[]){
 	long long *bf_ptr = bf_tape;
 
 	if(argc <= 1){
-		puts("Specify brainfucksource file.");
+		puts("Specify brainfuck source file.");
 	}
 	return 0;
 }
