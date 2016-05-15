@@ -29,7 +29,7 @@ int main(int argc, char *argv[]){
 	return 0;
 }
 
-void interpret_brainfuck(FILE *source){
+void interpret_brainfuck(char *source){
 	if(!source){
 		return;
 	}
