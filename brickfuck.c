@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include "brickfuck.h"
 
 extern int errno;
 
@@ -22,6 +23,7 @@ int main(int argc, char *argv[]){
 
 			perror(err_info);
 		} else {
+			interpret_brainfuck(source);
 			fclose(source);
 		}
 	}
