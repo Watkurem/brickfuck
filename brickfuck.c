@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
+#include <sys/stat.h>
 #include "brickfuck.h"
 
 extern int errno;
@@ -8,6 +10,8 @@ extern int errno;
 
 int main(int argc, char *argv[]){
 	FILE *source;
+	struct stat filstat;
+	char *bf_code;
 
 	if(argc <= 1){
 		puts("Specify brainfuck source file.");
@@ -21,12 +25,46 @@ int main(int argc, char *argv[]){
 
 			perror(err_info);
 		} else {
-			interpret_brainfuck(source);
+			fstat(fileno(source), &filstat);
+			bf_code = strip_source(source, filstat.st_size);
 			fclose(source);
+
+			interpret_brainfuck(bf_code);
 		}
 	}
 
 	return 0;
+}
+
+char * strip_source(FILE *source, long length){
+	char *buf = calloc(length, sizeof(char));
+	char *buf_iter = buf;
+	char c;
+
+	if(length == 0){
+		return NULL;
+	}
+
+	for(int i = 0; i < length; i++){
+		c = getc(source);
+		switch(c){
+		case '>':
+		case '<':
+		case '+':
+		case '-':
+		case '.':
+		case ',':
+		case '[':
+		case ']':
+			*buf_iter++ = c;
+		}
+	}
+
+	long long result_length = buf_iter - buf + 1;
+	buf = realloc(buf, result_length + 1);
+	buf[result_length] = '\0';
+
+	return buf;
 }
 
 void interpret_brainfuck(char *source){
