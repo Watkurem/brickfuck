@@ -37,15 +37,19 @@ int main(int argc, char *argv[]){
 		source = fopen(argv[1], "r");
 
 		if(!source){
+			/* This is for nice error reporting: 'brainfuck: <file>: <error>' */
 			char err_info[strlen("brickfuck: ") + 1 + strlen(argv[1]) + 1];
 			strcpy(err_info, "brickfuck: ");
 			strcat(err_info, argv[1]);
 
 			perror(err_info);
 		} else {
+			/* File size is given to strip_source so we can be sure there will be
+			 * enough memory even if there are no non-bf characters in file, but not
+			 * so much it would be undoubtedly wasted. */
 			fstat(fileno(source), &filstat);
 			bf_code = strip_source(source, filstat.st_size);
-			fclose(source);
+			fclose(source); /* File is not needed anymore at this point */
 
 			interpret_brainfuck(bf_code);
 			free(bf_code);
@@ -55,6 +59,19 @@ int main(int argc, char *argv[]){
 	return 0;
 }
 
+/* Takes a FILE pointer source and reads it into char array, stripping off
+ * everything that is not a bf instruction. Char array starts off with a size
+ * of 'lenght' (so do not give it super large files), but after stripping it
+ * will be truncated so memory is used efficiently.
+ *
+ * length - length of the source file in chars. You can obtain this from fstat
+ * or by other means. Do not fseek to end and ftell - standart does not support
+ * that!
+ *
+ * Returns null terminated char array with stripped source that should be freed
+ * by caller or NULL if length is 0 or less. If lenght is incorrect, returned
+ * array may contain EOF.
+ */
 char * strip_source(FILE *source, long length){
 	char *buf = calloc(length, sizeof(char));
 	char *buf_iter = buf;
@@ -79,13 +96,18 @@ char * strip_source(FILE *source, long length){
 		}
 	}
 
-	long long result_length = buf_iter - buf + 1;
+	long long result_length = buf_iter - buf + 1; /* Null terminated array */
 	buf = realloc(buf, result_length + 1);
 	buf[result_length] = '\0';
 
 	return buf;
 }
 
+/* Interpreter itself.
+
+   source - null-terminated array of char that should contain only valid bf
+   instructions.
+ */
 void interpret_brainfuck(char *source){
 	if(!source){
 		return;
@@ -94,8 +116,8 @@ void interpret_brainfuck(char *source){
 	short bf_tape[30000] = {0};
 	short *bf_ptr = bf_tape;
 	char *i = source;
-	char *stack[1024] = {0};
-	char **stack_ptr = stack;
+	char *stack[1024] = {0};  /* Stack is needed for bracket loops. Supports */
+	char **stack_ptr = stack; /* up to 1024 nested loops like this. */
 
 	while(*i != '\0'){
 		switch(*i){
@@ -117,10 +139,17 @@ void interpret_brainfuck(char *source){
 		case ',':
 			*bf_ptr = getchar();
 			if(*bf_ptr == EOF){
+				/* Sadly, different bf interpreters/compilers show different approaches
+				 * to EOF. That is, some treat 0 as EOF, some treat -1 as EOF, some are
+				 * even more crazy. So this clause is needed to fine-tune the
+				 * interpreter for different sources. */
 				*bf_ptr = -1;
 			}
 			break;
 		case '[':
+			/* Here the stack is used so interpreter can return to correct opening
+			 * bracket and a counter is used so interpreter returns from correct
+			 * closing bracket (and not from the first one it finds) */
 			if(!*bf_ptr){
 				int ctr = 0;
 				while((*(++i) != ']') || (ctr != 0))
@@ -137,6 +166,7 @@ void interpret_brainfuck(char *source){
 			if(!*bf_ptr){
 				stack_ptr--;
 			} else {
+				/* No, this is not Python. This is pure awesomeness. */
 				i = stack_ptr[-1];
 			}
 			break;
