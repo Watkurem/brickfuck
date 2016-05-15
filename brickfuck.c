@@ -7,8 +7,6 @@ extern int errno;
 
 
 int main(int argc, char *argv[]){
-	long long bf_tape[30000] = {0};
-	long long *bf_ptr = bf_tape;
 	FILE *source;
 
 	if(argc <= 1){
@@ -27,5 +25,15 @@ int main(int argc, char *argv[]){
 			fclose(source);
 		}
 	}
+
 	return 0;
+}
+
+void interpret_brainfuck(FILE *source){
+	if(!source){
+		return;
+	}
+
+	long long bf_tape[30000] = {0};
+	long long *bf_ptr = bf_tape;
 }
